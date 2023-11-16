@@ -1,0 +1,1 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/kael58hklxngurc0?svg=true)](https://ci.appveyor.com/project/Irinaries/page-object-s)
