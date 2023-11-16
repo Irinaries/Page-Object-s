@@ -2,49 +2,36 @@ package ru.netology.page;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import ru.netology.data.DataHelper;
 
-import static com.codeborne.selenide.Condition.hidden;
-import static com.codeborne.selenide.Condition.visible;
+import java.time.Duration;
+
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byText;
+import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
 public class TransferPage {
-    private SelenideElement amountInput = $x("//span[@data-test-id='amount']//input");
-    private SelenideElement fromInput = $x("//span[@data-test-id='from']//input");
-    private SelenideElement toInput = $x("//span[@data-test-id='to']//input");
-    private SelenideElement transferButton = $x("//button[@data-test-id='action-transfer']");
-    private SelenideElement cancelButton = $x("//button[@data-test-id='action-cancel']");
-    private SelenideElement errorNotification = $x("//div[@data-test-id='error-notification']");
-    private SelenideElement errorButton = $x("//div[@data-test-id='error-notification']/button");
+    private final SelenideElement transferButton = $("[data-test-id='action-transfer']");
+    private final SelenideElement amountInput = $("[data-test-id='amount'] input");
+    private final SelenideElement fromInput = $("[data-test-id='from'] input");
+    private final SelenideElement transferHead = $(byText("Пополнение карты"));
+    private final SelenideElement errorMessage = $("[data-test-id='error-notification']");
 
     public TransferPage() {
-        amountInput.should(visible);
-        fromInput.should(visible);
-        toInput.should(visible);
-        transferButton.should(visible);
-        cancelButton.should(visible);
-        errorNotification.should(hidden);
-        errorButton.should(hidden);
+        transferHead.shouldBe(visible);
     }
 
-    public void transfer(String amount, String cardFrom) {
-        amountInput.val(amount);
-        fromInput.val(cardFrom);
+    public DashboardPage makeValidTransfer(String amountToTransfer, DataHelper.CardInfo cardInfo) {
+        makeTransfer(amountToTransfer, cardInfo);
+        return new DashboardPage();
+    }
+    public void makeTransfer(String amountToTransfer, DataHelper.CardInfo cardInfo) {
+        amountInput.setValue(amountToTransfer);
+        fromInput.setValue(cardInfo.getCardNumber());
         transferButton.click();
     }
-
-    public void cancelTransfer(String amount, String cardFrom) {
-        amountInput.val(amount);
-        fromInput.val(cardFrom);
-        cancelButton.click();
-    }
-
-    public CardBalancePage checkNotification(Condition status) {
-        errorNotification.should(status);
-        if (status.equals(visible)) {
-            errorButton.click();
-            errorNotification.should(hidden);
-            cancelButton.click();
-        }
-        return new CardBalancePage();
+    public void findErrorMessage(String expectedText) {
+        errorMessage.shouldHave(text(expectedText), Duration.ofSeconds(15)).shouldBe(visible);
     }
 }
